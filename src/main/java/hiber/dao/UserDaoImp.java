@@ -5,7 +5,6 @@ import hiber.model.User;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -32,19 +31,21 @@ public class UserDaoImp implements UserDao {
 
 
    @Override
-   public void getUserByCarModel(String model, int series) {
+   public User getUserByCarModel(String model, int series) {
+      User user = null;
       try(Session session = sessionFactory.openSession()) {
 
-         String HQL="FROM Car car LEFT OUTER JOIN FETCH car.user WHERE car.model=:model and car.series=:series";
-         Car car = session.createQuery(HQL, Car.class)
+         Car car = session
+                 .createQuery("FROM Car car LEFT OUTER JOIN FETCH " +
+                         "car.user WHERE car.model=:model and car.series=:series", Car.class)
                  .setParameter("model", model)
                  .setParameter("series", series)
                  .uniqueResult();
-         System.out.println(car);
-         System.out.println(car.getUser());
+         user = car.getUser();
       } catch (HibernateException e) {
          e.printStackTrace();
       }
+      return user;
    }
 
 
